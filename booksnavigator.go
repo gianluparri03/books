@@ -1,19 +1,26 @@
 package main
 
 import (
+	"books/components/navigator"
 	"books/data"
-	"books/navigator"
+
 	"strings"
 )
 
-// BooksNavigator is a navigator that lets the user choose
+// BooksNavigator is NavigatorModel that lets the user choose
 // a book, through a library, a group and a saga
-var BooksNavigator = navigator.NewNavigator([]navigator.Layer{
-	librariesLayer{},
-	groupsLayer{},
-	sagasLayer{},
-	booksLayer{},
-})
+var BooksNavigator = navigator.NewNavigatorModel(
+	navigator.NewNavigator(
+		"My Library",
+		[]navigator.Layer{
+			librariesLayer{},
+			groupsLayer{},
+			sagasLayer{},
+			booksLayer{},
+		},
+	),
+	NewBookViewer,
+)
 
 type librariesLayer struct{}
 

@@ -21,10 +21,10 @@ func NewItem(id, title, description string) Item {
 }
 
 // Id returns the item's identifier
-func (i Item) Id() string          { return i.id }
+func (i Item) Id() string { return i.id }
 
 // Title returns the item's title, shown in the list
-func (i Item) Title() string       { return i.title }
+func (i Item) Title() string { return i.title }
 
 // Description returns the item's description, shown in the list
 func (i Item) Description() string { return i.description }

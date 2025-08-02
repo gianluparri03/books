@@ -9,7 +9,7 @@ import (
 
 // main runs the program (launches a BookNavigator)
 func main() {
-	p := tea.NewProgram(BooksNavigator.GetModel(), tea.WithAltScreen())
+	p := tea.NewProgram(BooksNavigator, tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {
 		fmt.Println("Error running program:", err)
