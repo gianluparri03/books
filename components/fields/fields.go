@@ -1,6 +1,8 @@
 package fields
 
 import (
+	"books/components/navigator"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"strings"
@@ -29,17 +31,25 @@ func (fm FieldsModel) Init() tea.Cmd {
 	return nil
 }
 
-// Update is used by bubbletea
-func (fm FieldsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+// NUpdate is used by Navigator and bubbletea
+func (fm FieldsModel) NUpdate(msg tea.Msg) (tea.Model, tea.Cmd, navigator.Jump) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch key := msg.String(); key {
 		case "ctrl+c", "q":
-			return fm, tea.Quit
+			return fm, tea.Quit, navigator.Jump{}
+		case "b":
+			return fm, nil, navigator.Jump{Prev: true}
 		}
 	}
 
-	return fm, nil
+	return fm, nil, navigator.Jump{}
+}
+
+// Update is used by bubbletea
+func (fm FieldsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m, c, _ := fm.NUpdate(msg)
+	return m, c
 }
 
 // View is used by bubbletea

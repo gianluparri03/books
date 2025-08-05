@@ -1,74 +1,69 @@
 package navigator
 
-// Navigator contains all the possible options for each layer, and keeps
-// track of what has been chosen, and what needs to be.
-// It is composed of a stack, an array of layers and
-// and a final model rendered
-// when the final choice has been made
+import tea "github.com/charmbracelet/bubbletea"
+
+// Jump is used by NModels to signal the navigator that it needs to jump
+// to the previous or next model
+type Jump struct {
+	Prev    bool
+	Next    bool
+	NextArg string
+}
+
+// NModel is a bubbletea model that also implements NUpdate, which can return
+// a jump alongside the model and the command
+type NModel interface {
+	tea.Model
+	NUpdate(tea.Msg) (tea.Model, tea.Cmd, Jump)
+}
+
+// Navigator is a wrapper for a model that has (or can have) a previous and
+// a next one
 type Navigator struct {
-	rootName string
-	stack    []Item
-	layers   []Layer
+	prev    func() tea.Model
+	current tea.Model
+	next    func(string) tea.Model
 }
 
-// NewNavigator creates a new Navigator for the given layers
-func NewNavigator(rootName string, l []Layer) Navigator {
-	return Navigator{rootName: rootName, layers: l}
+// NewNavigator returns a new NavigatorModel
+func NewNavigator(prev func() tea.Model, current tea.Model, next func(string) tea.Model) tea.Model {
+	return Navigator{prev, current, next}
 }
 
-// GetOptions returns the options to choose from, in the current layer
-func (n Navigator) GetOptions() []Item {
-	return n.layers[len(n.stack)].GetAll(n.Last().Id())
+// Init is used by bubbletea
+func (n Navigator) Init() tea.Cmd {
+	return n.current.Init()
 }
 
-// Choose tries to select the current item and jump to the next layer.
-// Returns true if no errors occurred
-func (n *Navigator) Choose(item Item) bool {
-	if _, err := n.layers[len(n.stack)].GetOne(item.Id()); err == nil {
-		n.stack = append(n.stack, item)
-		return true
-	}
+// Update is used by bubbletea
+func (n Navigator) Update(msg tea.Msg) (m tea.Model, c tea.Cmd) {
+	var j Jump
 
-	return false
-}
-
-// CanGoBack returns true if there is a layer before the current one
-func (n Navigator) CanGoBack() bool {
-	return len(n.stack) > 0
-}
-
-// GoBack tries to get to the previous layer.
-// Returns true if no errors occurred
-func (n *Navigator) GoBack() bool {
-	if n.CanGoBack() {
-		n.stack = n.stack[:len(n.stack)-1]
-		return true
-	}
-
-	return false
-}
-
-// Completed returns true if all the choices has been made
-func (n Navigator) Completed() bool {
-	return len(n.layers) == len(n.stack)
-}
-
-// Print returns a visual representation of the choices
-func (n Navigator) Print() string {
-	str := n.rootName
-
-	for _, item := range n.stack {
-		str += " > " + item.Title()
-	}
-
-	return str
-}
-
-// Last returns the last choosen item
-func (n Navigator) Last() Item {
-	if len(n.stack) > 0 {
-		return n.stack[len(n.stack)-1]
+	// Executes the NUpdate of the current model, if it exists
+	if current, ok := n.current.(NModel); ok {
+		m, c, j = current.NUpdate(msg)
 	} else {
-		return Item{}
+		m, c = n.current.Update(msg)
 	}
+
+	if j.Prev && n.prev != nil {
+		// Returns the previous model
+		m = n.prev()
+		c = m.Init()
+		return m, c
+	} else if j.Next && n.next != nil {
+		// Returns the next model
+		m = n.next(j.NextArg)
+		c = m.Init()
+		return m, c
+	} else {
+		// Returns the (updated) current model, wrapped in the navigator
+		n.current = m
+		return n, c
+	}
+}
+
+// View is used by bubbletea
+func (n Navigator) View() string {
+	return n.current.View()
 }

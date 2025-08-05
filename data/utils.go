@@ -19,10 +19,10 @@ func GetLibrary(id string) (Library, error) {
 }
 
 // GetGroups returns all the groups of a library
-func GetGroups(lib string) []Group {
+func GetGroups(library string) []Group {
 	var found []Group
 	for _, g := range groups {
-		if g.Library == lib {
+		if g.Library == library || library == "" {
 			found = append(found, g)
 		}
 	}
@@ -45,7 +45,7 @@ func GetGroup(id string) (Group, error) {
 func GetSagas(group string) []Saga {
 	var found []Saga
 	for _, s := range sagas {
-		if s.Group == group {
+		if s.Group == group || group == "" {
 			found = append(found, s)
 		}
 	}
@@ -68,7 +68,7 @@ func GetSaga(id string) (Saga, error) {
 func GetBooks(saga string) []Book {
 	var found []Book
 	for _, b := range books {
-		if b.Saga == saga {
+		if b.Saga == saga || saga == "" {
 			found = append(found, b)
 		}
 	}

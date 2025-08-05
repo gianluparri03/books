@@ -7,9 +7,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// main runs the program (launches a BookNavigator)
+// main runs the program
 func main() {
-	p := tea.NewProgram(BooksNavigator, tea.WithAltScreen())
+	p := tea.NewProgram(newLibrariesList(), tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {
 		fmt.Println("Error running program:", err)

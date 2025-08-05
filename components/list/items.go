@@ -1,11 +1,10 @@
-package navigator
+package list
 
-// Layer is something to choose from, with a GetAll method, to get all
-// the options (of a parent), and a GetOne method, to get a single item
-// and esnure the id is correct
-type Layer interface {
+// ItemSupplier is something that can returns all the Items and check if
+// an Item exists
+type ItemSupplier interface {
 	GetOne(id string) (Item, error)
-	GetAll(parent string) []Item
+	GetAll() []Item
 }
 
 // Item is an item that can be choosen from a list

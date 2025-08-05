@@ -1,6 +1,8 @@
 package tabs
 
 import (
+	"books/components/navigator"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"strings"
@@ -31,34 +33,45 @@ func (tm TabbedModel) Init() tea.Cmd {
 	return tm.tabs[tm.active].Model.Init()
 }
 
-// Update is used by bubbletea
-func (tm TabbedModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+// NUpdate is used by Navigator and bubbletea
+func (tm TabbedModel) NUpdate(msg tea.Msg) (tea.Model, tea.Cmd, navigator.Jump) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch key := msg.String(); key {
 		case "ctrl+c", "q":
-			return tm, tea.Quit
+			return tm, tea.Quit, navigator.Jump{}
 
 		// Selects the previous tab
 		case "left", "shift+tab":
 			if tm.active > 0 {
 				tm.active--
-				return tm, tm.tabs[tm.active].Model.Init()
+				return tm, tm.tabs[tm.active].Model.Init(), navigator.Jump{}
 			}
 
 		// Selects the next tab
 		case "right", "tab":
 			if tm.active < len(tm.tabs)-1 {
 				tm.active++
-				return tm, tm.tabs[tm.active].Model.Init()
+				return tm, tm.tabs[tm.active].Model.Init(), navigator.Jump{}
 			}
 		}
 	}
 
 	// Propagates the message to the inner model
 	var cmd tea.Cmd
-	tm.tabs[tm.active].Model, cmd = tm.tabs[tm.active].Model.Update(msg)
-	return tm, cmd
+	var jump navigator.Jump
+	if tab, ok := tm.tabs[tm.active].Model.(navigator.NModel); ok {
+		tm.tabs[tm.active].Model, cmd, jump = tab.NUpdate(msg)
+	} else {
+		tm.tabs[tm.active].Model, cmd = tm.tabs[tm.active].Model.Update(msg)
+	}
+	return tm, cmd, jump
+}
+
+// Update is used by bubbletea
+func (tm TabbedModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m, c, _ := tm.NUpdate(msg)
+	return m, c
 }
 
 // View is used by bubbletea
