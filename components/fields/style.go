@@ -4,5 +4,5 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// LabelColor is used to higlight the labels
-var LabelColor = lipgloss.Color("#EE6FF8")
+// LabelStyle is used to higlight the labels.
+var labelStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#EE6FF8"))

@@ -6,61 +6,49 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/mosaic"
-	"image/jpeg"
-	"os"
+	"image"
 )
 
-// Model contains a preview jpeg image on the left and a nested model on the right side
+// Model is a bubbletea model composed of a preview image on the left (rendered
+// with mosaic) and another model on the right side.
 type Model struct {
 	preview string
 	model   tea.Model
 }
 
-// New returns a new Model
-func New(path string, width int, model tea.Model) tea.Model {
-	mosaic := mosaic.New().Width(width).Height(mosaic.Fit)
+// New returns a new Model. If img is nil the image won't be rendered.
+func New(img image.Image, model tea.Model) tea.Model {
+	m := Model{model: model}
 
-	var m Model
-
-	// Loads the image
-	f, err := os.Open(path)
-	defer f.Close()
-	if err == nil {
-		img, _ := jpeg.Decode(f)
-		if err != nil {
-			m.preview = mosaic.Render(img)
-		}
+	if img != nil {
+		mosaic := mosaic.New().Width(Width).Height(calcHeight(img))
+		m.preview = mosaic.Render(img)
 	}
 
-	m.model = model
 	return m
 }
 
-// Init is used by bubbletea
 func (m Model) Init() tea.Cmd {
 	return m.model.Init()
 }
 
-// NUpdate is used by navigator and bubbletea
 func (m Model) NUpdate(msg tea.Msg) (nm tea.Model, c tea.Cmd, j navigator.Jump) {
 	m.model, c, j = navigator.TryNUpdate(m.model, msg)
 	return m, c, j
 }
 
-// Update is used by bubbletea
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	nm, c, _ := m.NUpdate(msg)
 	return nm, c
 }
 
-// View is used by bubbletea
 func (m Model) View() string {
 	return lipgloss.NewStyle().
 		Padding(3, 3).
 		Render(
 			lipgloss.JoinHorizontal(
 				lipgloss.Left,
-				preview,
+				m.preview,
 				m.model.View(),
 			),
 		)

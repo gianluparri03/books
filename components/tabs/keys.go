@@ -4,20 +4,27 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 )
 
-// keyMap contains the key bindings
+// keyMap contains the some bindings.
 type keyMap struct {
+	// Back returns to the previous model
 	Back key.Binding
-	Next key.Binding
+
+	// Prev opens the previous tab
 	Prev key.Binding
+
+	// Next opens the next tab
+	Next key.Binding
+
+	// Quit quits the application
 	Quit key.Binding
 }
 
-// ShortHelp returns some of the key bindings
+// ShortHelp returns some of the key bindings.
 func (k keyMap) ShortHelp() []key.Binding {
 	return []key.Binding{k.Back, k.Prev, k.Next, k.Quit}
 }
 
-// FullHelp returns all the key bindings
+// FullHelp returns all the key bindings, divided in columns.
 func (k keyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		[]key.Binding{k.Back, k.Quit},
@@ -25,6 +32,7 @@ func (k keyMap) FullHelp() [][]key.Binding {
 	}
 }
 
+// DefaultKeys are the keys used by the Model.
 var DefaultKeys = keyMap{
 	Back: key.NewBinding(
 		key.WithKeys("b"),

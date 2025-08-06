@@ -1,15 +1,23 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"books/data"
 
+	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
+	"os"
 )
 
-// main runs the program
+var (
+	// chosen items
+	library data.Library
+	group   data.Group
+	saga    data.Saga
+	book    data.Book
+)
+
 func main() {
-	p := tea.NewProgram(HierarchyView(), tea.WithAltScreen())
+	p := tea.NewProgram(librariesListNModel(), tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {
 		fmt.Println("Error running program:", err)

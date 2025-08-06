@@ -1,25 +1,21 @@
 package list
 
-// Item is an item that can be choosen from a list
+// Item is an item that can be choosen from the list.
 type Item struct {
 	id          string
 	title       string
 	description string
 }
 
-// NewItem creates a new item
 func NewItem(id, title, description string) Item {
 	return Item{id, title, description}
 }
 
-// Id returns the item's identifier
 func (i Item) Id() string { return i.id }
 
-// Title returns the item's title, shown in the list
 func (i Item) Title() string { return i.title }
 
-// Description returns the item's description, shown in the list
 func (i Item) Description() string { return i.description }
 
-// FilterValue returns a string used when filtering
+// FilterValue returns the value on which the filters may be applied
 func (i Item) FilterValue() string { return i.title + " " + i.description }

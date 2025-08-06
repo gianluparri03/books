@@ -10,24 +10,23 @@ import (
 	"strings"
 )
 
-// Model is a bubbletea model composed of tabs
+// Model is a bubbletea model composed of tabs, that can be opened one at a
+// time.
 type Model struct {
 	tabs   []Tab
 	active int
 	help   help.Model
 }
 
-// New returns a new model
+// New returns a new Model.
 func New(tabs []Tab) tea.Model {
 	return Model{tabs: tabs, help: help.New()}
 }
 
-// Init is used by bubbletea
 func (m Model) Init() tea.Cmd {
 	return m.tabs[m.active].Model.Init()
 }
 
-// NUpdate is used by Navigator and bubbletea
 func (m Model) NUpdate(msg tea.Msg) (tea.Model, tea.Cmd, navigator.Jump) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -59,21 +58,15 @@ func (m Model) NUpdate(msg tea.Msg) (tea.Model, tea.Cmd, navigator.Jump) {
 	// Propagates the message to the inner model
 	var cmd tea.Cmd
 	var jump navigator.Jump
-	if tab, ok := m.tabs[m.active].Model.(navigator.NModel); ok {
-		m.tabs[m.active].Model, cmd, jump = tab.NUpdate(msg)
-	} else {
-		m.tabs[m.active].Model, cmd = m.tabs[m.active].Model.Update(msg)
-	}
+	m.tabs[m.active].Model, cmd, jump = navigator.TryNUpdate(m.tabs[m.active].Model, msg)
 	return m, cmd, jump
 }
 
-// Update is used by bubbletea
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	nm, c, _ := m.NUpdate(msg)
 	return nm, c
 }
 
-// View is used by bubbletea
 func (m Model) View() string {
 	var width int
 	sb := strings.Builder{}
@@ -88,7 +81,7 @@ func (m Model) View() string {
 	return padding.Render(sb.String())
 }
 
-// renderHeader writes the tabs header into a stringbuilder
+// renderHeader writes the tabs header into a strings.Builder.
 func (m Model) renderHeader(sb *strings.Builder, width *int) {
 	var tabs []string
 
@@ -110,7 +103,7 @@ func (m Model) renderHeader(sb *strings.Builder, width *int) {
 	sb.WriteString(header)
 }
 
-// renderContent writes the tabs content into a stringbuilder
+// renderContent writes the tabs content into a strings.Builder.
 func (m Model) renderContent(sb *strings.Builder, width int) {
 	style := lipgloss.NewStyle().
 		Padding(1, 2, 0).

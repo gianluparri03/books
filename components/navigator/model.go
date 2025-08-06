@@ -2,24 +2,25 @@ package navigator
 
 import tea "github.com/charmbracelet/bubbletea"
 
-// Model is a wrapper for a model that has (or can have) a previous and a next one
+// Model is a bubbletea model that works as a wrapper for other models that can
+// implements the NModel interface.
 type Model struct {
 	prev    func() tea.Model
 	current tea.Model
 	next    func(string) tea.Model
 }
 
-// New returns a new Model
+// New returns a new Model. Current is the current model, prev a function
+// returning the previous model and next another function with a string
+// parameter that returns the next model.
 func New(prev func() tea.Model, current tea.Model, next func(string) tea.Model) tea.Model {
 	return Model{prev: prev, current: current, next: next}
 }
 
-// Init is used by bubbletea
 func (m Model) Init() tea.Cmd {
 	return m.current.Init()
 }
 
-// Update is used by bubbletea
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Executes the NUpdate of the current model
 	nm, c, j := TryNUpdate(m.current, msg)
@@ -41,7 +42,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 }
 
-// View is used by bubbletea
 func (m Model) View() string {
 	return m.current.View()
 }

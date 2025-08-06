@@ -1,39 +1,47 @@
 package data
 
-// UNCOMMENT these lines to make it compile
-// var libraries []Library{}
-// var groups []Group{}
-// var sagas = []Saga{}
-// var books = []Book{}
+import "image"
 
-// Library is the first layer of books grouping
+// libraries contains all the libraries.
+var libraries []Library
+
+// Library is the first layer of books grouping.
 type Library struct {
 	Id   string
 	Name string
 }
 
-// Group is the second layer of books grouping
+// groups contains all the groups.
+var groups []Group
+
+// Group is the second layer of books grouping.
 type Group struct {
-	Library string
+	Library string // Library id
 
 	Id   string
 	Name string
 }
 
-// Group is the third layer of books grouping
+// sagas contains all the groups.
+var sagas []Saga
+
+// Group is the third layer of books grouping.
 type Saga struct {
-	Library string
-	Group   string
+	Library string // Library id
+	Group   string // Group Id
 
 	Id   string
 	Name string
 }
 
-// Book is a book
+// books contains all the books.
+var books []Book
+
+// Book is a book.
 type Book struct {
-	Library string
-	Group   string
-	Saga    string
+	Library string // Library id
+	Group   string // Group Id
+	Saga    string // Saga Id
 
 	Isbn      string
 	Title     string
@@ -44,9 +52,11 @@ type Book struct {
 	Pages     string
 	Price     string
 
-	BoughtShop   string
-	BoughtDate   string
-	StartedDate  string
-	FinishedDate string
-	Status       string
+	BoughtShop   string // the shop from which the book has been bought
+	BoughtDate   string // the day the book has been bought
+	StartedDate  string // the day the reading started
+	FinishedDate string // the day the reading finished
+	Status       string // Read, ToBeRead, Reading, Abandoned...
+
+	Thumbnail image.Image // may be nil
 }
