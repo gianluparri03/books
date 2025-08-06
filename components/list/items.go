@@ -1,12 +1,5 @@
 package list
 
-// ItemSupplier is something that can returns all the Items and check if
-// an Item exists
-type ItemSupplier interface {
-	GetOne(id string) (Item, error)
-	GetAll() []Item
-}
-
 // Item is an item that can be choosen from a list
 type Item struct {
 	id          string

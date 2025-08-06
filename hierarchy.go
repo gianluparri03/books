@@ -7,7 +7,6 @@ import (
 	"books/components/tabs"
 	"books/data"
 
-	"fmt"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -20,11 +19,28 @@ var (
 	book    data.Book
 )
 
+func HierarchyView() tea.Model {
+	return newLibrariesList()
+}
+
 func newLibrariesList() tea.Model {
-	return navigator.NewNavigator(
+	var items []list.Item
+	for _, l := range data.GetLibraries() {
+		var groups strings.Builder
+		for i, g := range data.GetGroups(l.Id) {
+			if i > 0 {
+				groups.WriteString(", ")
+			}
+			groups.WriteString(g.Name)
+		}
+
+		items = append(items, list.NewItem(l.Id, l.Name, groups.String()))
+	}
+
+	return navigator.New(
 		nil,
 
-		list.NewListModel(getTitle(), librariesSupplier{}),
+		list.New(getTitle(), items, false, true),
 
 		func(id string) tea.Model {
 			library, _ = data.GetLibrary(id)
@@ -34,13 +50,26 @@ func newLibrariesList() tea.Model {
 }
 
 func newGroupsList() tea.Model {
-	return navigator.NewNavigator(
+	var items []list.Item
+	for _, g := range data.GetGroups(library.Id) {
+		var sagas strings.Builder
+		for i, s := range data.GetSagas(g.Id) {
+			if i > 0 {
+				sagas.WriteString(", ")
+			}
+			sagas.WriteString(s.Name)
+		}
+
+		items = append(items, list.NewItem(g.Id, g.Name, sagas.String()))
+	}
+
+	return navigator.New(
 		func() tea.Model {
 			library = data.Library{}
 			return newLibrariesList()
 		},
 
-		list.NewListModel(getTitle(), groupsSupplier{library: library.Id}),
+		list.New(getTitle(), items, true, true),
 
 		func(id string) tea.Model {
 			group, _ = data.GetGroup(id)
@@ -50,13 +79,26 @@ func newGroupsList() tea.Model {
 }
 
 func newSagasList() tea.Model {
-	return navigator.NewNavigator(
+	var items []list.Item
+	for _, s := range data.GetSagas(group.Id) {
+		var books strings.Builder
+		for i, b := range data.GetBooks(s.Id) {
+			if i > 0 {
+				books.WriteString(", ")
+			}
+			books.WriteString(b.Title)
+		}
+
+		items = append(items, list.NewItem(s.Id, s.Name, books.String()))
+	}
+
+	return navigator.New(
 		func() tea.Model {
 			group = data.Group{}
 			return newGroupsList()
 		},
 
-		list.NewListModel(getTitle(), sagasSupplier{group: group.Id}),
+		list.New(getTitle(), items, true, true),
 
 		func(id string) tea.Model {
 			saga, _ = data.GetSaga(id)
@@ -66,16 +108,19 @@ func newSagasList() tea.Model {
 }
 
 func newBooksList() tea.Model {
-	return navigator.NewNavigator(
+	var items []list.Item
+	for _, b := range data.GetBooks(saga.Id) {
+		authors := strings.Join(b.Authors, ", ")
+		items = append(items, list.NewItem(b.Isbn, b.Title, authors))
+	}
+
+	return navigator.New(
 		func() tea.Model {
 			saga = data.Saga{}
 			return newSagasList()
 		},
 
-		list.NewListModel(
-			fmt.Sprintf("My Library > %s > %s > %s", library.Name, group.Name, saga.Name),
-			booksSupplier{saga: saga.Id},
-		),
+		list.New(getTitle(), items, true, true),
 
 		func(id string) tea.Model {
 			book, _ = data.GetBook(id)
@@ -85,16 +130,16 @@ func newBooksList() tea.Model {
 }
 
 func newBookDetails() tea.Model {
-	return navigator.NewNavigator(
+	return navigator.New(
 		func() tea.Model {
 			book = data.Book{}
 			return newBooksList()
 		},
 
-		tabs.NewTabbedModel([]tabs.Tab{
+		tabs.New([]tabs.Tab{
 			tabs.Tab{
 				Title: "General",
-				Model: fields.NewFieldsModel(
+				Model: fields.New(
 					fields.Field{Label: "Title", Value: book.Title},
 					fields.Field{Label: "Authors", Value: strings.Join(book.Authors, "\n")},
 					fields.Field{Label: "Publisher", Value: book.Publisher},
@@ -103,7 +148,7 @@ func newBookDetails() tea.Model {
 
 			tabs.Tab{
 				Title: "Details",
-				Model: fields.NewFieldsModel(
+				Model: fields.New(
 					fields.Field{Label: "Pages", Value: book.Pages},
 					fields.Field{Label: "Price", Value: book.Price},
 					fields.Field{Label: "Language", Value: book.Lang},
@@ -113,7 +158,7 @@ func newBookDetails() tea.Model {
 
 			tabs.Tab{
 				Title: "Location",
-				Model: fields.NewFieldsModel(
+				Model: fields.New(
 					fields.Field{Label: "Library", Value: book.Library},
 					fields.Field{Label: "Group", Value: book.Group},
 					fields.Field{Label: "Saga", Value: book.Saga},
@@ -123,7 +168,7 @@ func newBookDetails() tea.Model {
 
 			tabs.Tab{
 				Title: "Status",
-				Model: fields.NewFieldsModel(
+				Model: fields.New(
 					fields.Field{Label: "Bought on", Value: book.BoughtDate, Inline: true},
 					fields.Field{Label: "Bought from", Value: book.BoughtShop, Inline: true},
 					fields.Field{Label: "Started reading on", Value: book.StartedDate, Inline: true},
