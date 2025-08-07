@@ -17,8 +17,17 @@ var (
 )
 
 func main() {
-	p := tea.NewProgram(librariesListNModel(), tea.WithAltScreen())
+	if len(os.Args) < 2 {
+		fmt.Println("Please specify the database path.")
+		os.Exit(1)
+	}
 
+	if err := data.InitDB(os.Args[1]); err != nil {
+		fmt.Println("Error initializing the database:", err)
+		os.Exit(1)
+	}
+
+	p := tea.NewProgram(librariesListNModel(), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		fmt.Println("Error running program:", err)
 		os.Exit(1)

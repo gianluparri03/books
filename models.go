@@ -74,8 +74,7 @@ func sagasListModel() tea.Model {
 func booksListModel() tea.Model {
 	var items []list.Item
 	for _, b := range data.GetBooks(saga.Id) {
-		authors := strings.Join(b.Authors, ", ")
-		items = append(items, list.NewItem(b.Isbn, b.Title, authors))
+		items = append(items, list.NewItem(b.Isbn, b.Title, b.Authors))
 	}
 
 	title := fmt.Sprintf(
@@ -95,7 +94,7 @@ func bookDetailsModel() tea.Model {
 				Title: "General",
 				Model: fields.New(
 					fields.Field{Label: "Title", Value: book.Title},
-					fields.Field{Label: "Authors", Value: strings.Join(book.Authors, "\n")},
+					fields.Field{Label: "Authors", Value: book.Authors},
 					fields.Field{Label: "Publisher", Value: book.Publisher},
 				),
 			},

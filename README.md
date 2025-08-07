@@ -18,18 +18,20 @@ _Comics_), `groups` (e.g. _Fantasy_ and _Sci-Fi_ for the _Novels_ library) and
 With this project, I can search through the collections and view the books data
 (with an ASCII thumbnail preview!).
 
+To run it, you can simply execute
+
+```
+go run . <dbPath>
+```
+
+where `<dbPath>` is the path to the sqlite database.
+
 ## okay?
 
 Yeah I know this is quite stupid, but I am working on it.
 
-Right now the data is read-only and hardcoded into the source files: I'm still
-trying to build a pleasing interface, that will come later (if I'll ever get
-there).
-
-The hardcoded data is inside the `data/data.go` file (git-ignored), which
-contains an `init` function that populates the data arrays defined inside
-`data/types.go`. I also have a `data/thumbs/` folder with some thumbnails in
-the `.gitignore`.
+Right now the data is read-only: I'm still trying to build a pleasing interface,
+the write functionalities will come later (if I'll ever get there).
 
 ## uhm, yes, but...
 
@@ -41,7 +43,7 @@ That said, I hope somebody else will use it some day.
 
 ## How did you do it?
 
-The project relies on some [charbracelet](https://charm.land) libraries, i.e.
+The project relies on some [charmbracelet](https://charm.land) libraries, i.e.
 [bubbletea](https://github.com/charmbracelet/bubbletea),
 [bubbles](https://github.com/charmbracelet/bubbles) and
 [lipgloss](https://github.com/charmbracelet/lipgloss).
