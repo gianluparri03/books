@@ -19,7 +19,8 @@ type Model struct {
 }
 
 // New returns a new Model.
-func New(tabs []Tab) tea.Model {
+func New(canGoBack bool, tabs []Tab) tea.Model {
+	DefaultKeys.Back.SetEnabled(canGoBack)
 	return Model{tabs: tabs, help: help.New()}
 }
 

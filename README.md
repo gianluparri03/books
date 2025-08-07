@@ -1,13 +1,41 @@
 # Books
 
-This repo contains a simple TUI to explore a hierarchical view of a books
-collection.
+This repo contains a simple TUI to manage a book collection.
 
 ![list view](gallery/list.png)
 ![filer view](gallery/filter.png)
 ![book view](gallery/book.png)
 
-## ... I am sorry, what?
+
+## Running
+
+The syntax to run this application is
+
+```
+go run . <dbPath> <programName/"list"> [additionalParams]
+```
+
+or, if you wish
+
+```
+go build .
+./books <dbPath> <programName/"list"> [additionalParams]
+```
+
+- `dbPath` is the path of a sqlite database. Does not need to exist in the
+  filesystem.
+
+- `programName` is the name of the program to run.
+  + `list` shows the list of available programs
+  + `hierarchy` lets you navigate through the collection hierarchy (libraries,
+    groups, sagas and books)
+  + `flat` lets you navigate the list of all books, without a "folderized" view
+  + `book` lets you see directly the details of a book, whose isbn will be
+    specified in the `additionalPrams`.
+
+## Further Explanation
+
+### ... I am sorry, what?
 
 Okay, so.
 
@@ -18,22 +46,14 @@ _Comics_), `groups` (e.g. _Fantasy_ and _Sci-Fi_ for the _Novels_ library) and
 With this project, I can search through the collections and view the books data
 (with an ASCII thumbnail preview!).
 
-To run it, you can simply execute
-
-```
-go run . <dbPath>
-```
-
-where `<dbPath>` is the path to the sqlite database.
-
-## okay?
+### okay?
 
 Yeah I know this is quite stupid, but I am working on it.
 
 Right now the data is read-only: I'm still trying to build a pleasing interface,
-the write functionalities will come later (if I'll ever get there).
+the editing functionalities will come later (if I'll ever get there).
 
-## uhm, yes, but...
+### uhm, yes, but...
 
 I understand that many of the things done (or thinked) in this project may not
 fit everyone, or even anyone, but I preferred to start developing something
@@ -48,8 +68,10 @@ The project relies on some [charmbracelet](https://charm.land) libraries, i.e.
 [bubbles](https://github.com/charmbracelet/bubbles) and
 [lipgloss](https://github.com/charmbracelet/lipgloss).
 
-I then made a `components` folder, containing some higher level models, and 
-the `(n)models.go` files, that contains the final models, rendered to the user.
+I then made a `components` folder, containing some reusable, data-agnostic
+models (like `list` to see a list and `tabs` for a tabbed view), used by the
+`models.go` file, which contains all the specialized models, used by the various
+programs, described iside `p_*.go` files.
 
 ## Last notes
 

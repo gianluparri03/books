@@ -17,7 +17,7 @@ func GetLibrary(id string) (l Library, err error) {
 	if err = db.Get(&l, `SELECT * FROM libraries WHERE id=?;`, id); err == nil {
 		return l, nil
 	} else {
-		return Library{}, errors.New("library not found")
+		return Library{}, errors.New("Library not found")
 	}
 }
 
@@ -32,7 +32,7 @@ func GetGroup(id string) (g Group, err error) {
 	if err = db.Get(&g, `SELECT * FROM groups WHERE id=?;`, id); err == nil {
 		return g, nil
 	} else {
-		return Group{}, errors.New("group not found")
+		return Group{}, errors.New("Group not found")
 	}
 }
 
@@ -47,14 +47,19 @@ func GetSaga(id string) (s Saga, err error) {
 	if err = db.Get(&s, `SELECT * FROM sagas WHERE id=?;`, id); err == nil {
 		return s, nil
 	} else {
-		return Saga{}, errors.New("saga not found")
+		return Saga{}, errors.New("Saga not found")
 	}
 }
 
 // GetBooks returns all the books inside of a saga. Only the isbn, title and
-// authors fields will be fetched.
+// authors fields will be fetched. If saga is empty, all the books are fetched.
 func GetBooks(saga string) (b []Book) {
-	db.Select(&b, `SELECT isbn, title, authors FROM books WHERE saga=?;`, saga)
+	if saga != "" {
+		db.Select(&b, `SELECT isbn, title, authors FROM books WHERE saga=?;`, saga)
+	} else {
+		db.Select(&b, `SELECT isbn, title, authors FROM books;`)
+	}
+
 	return b
 }
 
@@ -63,7 +68,7 @@ func GetBooks(saga string) (b []Book) {
 func GetBook(isbn string) (b Book, err error) {
 	err = db.Get(&b, `SELECT * FROM books WHERE isbn=?;`, isbn)
 	if err != nil {
-		return Book{}, err
+		return Book{}, errors.New("Book not found")
 	}
 
 	// Fetches and loads the image
